@@ -78,6 +78,27 @@ export const installLiveContainerOperation: Operation = {
   ],
 };
 
+export const installMadeiraOperation: Operation = {
+  id: "install_madeira",
+  titleKey: "operations.install_madeira_title",
+  successTitleKey: "operations.install_madeira_success_title",
+  successMessageKey: "operations.install_madeira_success_message",
+  steps: [
+    {
+      id: "download",
+      titleKey: "operations.install_madeira_step_download",
+    },
+    {
+      id: "extract",
+      titleKey: "operations.install_madeira_step_extract",
+    },
+    {
+      id: "install",
+      titleKey: "operations.install_madeira_step_install",
+    },
+  ],
+};
+
 export const sideloadOperation = {
   id: "sideload",
   titleKey: "operations.sideload_title",

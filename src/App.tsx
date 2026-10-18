@@ -9,6 +9,7 @@ import {
   sideloadOperation,
   installSideStoreOperation,
   installLiveContainerOperation,
+  installMadeiraOperation,
   Operation,
   OperationState,
   OperationUpdate,
@@ -65,6 +66,13 @@ function App() {
       setVersion(version);
     };
     fetchVersion();
+  }, []);
+
+  const [madeiraDir, setMadeiraDir] = useState<string>("");
+  useEffect(() => {
+    invoke<string>("madeira_work_dir")
+      .then(setMadeiraDir)
+      .catch((e) => console.error("Unable to get Madeira folder:", e));
   }, []);
 
   const shortcutLabel = useCallback(
@@ -373,6 +381,17 @@ function App() {
                   {t("app.livecontainer_sidestore_nightly")}
                 </button>
                 <button
+                  onClick={() => {
+                    if (!ensuredLoggedIn() || !ensureSelectedDevice()) return;
+                    startOperation(installMadeiraOperation, {}).catch((e) => {
+                      console.log(e.type);
+                      console.error(e.message);
+                    });
+                  }}
+                >
+                  {t("app.madeira")}
+                </button>
+                <button
                   onClick={async () => {
                     if (!ensuredLoggedIn() || !ensureSelectedDevice()) return;
                     let path = await openFileDialog({
@@ -393,6 +412,20 @@ function App() {
                   {t("app.import_ipa")}
                 </button>
               </div>
+              {madeiraDir && (
+                <p className="section-hint madeira-hint">
+                  {t("app.madeira_hint")} <code>{madeiraDir}</code>{" "}
+                  <button
+                    className="toolbar-button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(madeiraDir);
+                      toast.success(t("common.copied_success"));
+                    }}
+                  >
+                    {t("app.madeira_copy_folder")}
+                  </button>
+                </p>
+              )}
             </GlassCard>
           </section>
           <section className="workspace-section">

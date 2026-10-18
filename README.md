@@ -10,6 +10,7 @@ Only these changes, all visible in the commit history:
 2. **Auto-update disabled.** The official iloader updates itself to the official release, which would silently remove Memory+.
 3. **Its own name and identifier** (`iloader MemoryPlus`, `app.iloadermemoryplus`), so it is never mistaken for the official app and can be installed next to it.
 4. **Automatic builds** with GitHub Actions: the files on the Releases page are built from this repository's code, not uploaded by hand.
+5. **One-click Madeira.** The **Madeira (Memory+)** button downloads the latest official release from [github.com/willfaust/Madeira](https://github.com/willfaust/Madeira/releases), checks it against the SHA-256 published there, and installs it with Memory+. No IPA to download by hand.
 
 Everything else (Apple ID sign-in, signing, installing) is the same as the official iloader it is based on (**v2.3.10**).
 
@@ -19,7 +20,11 @@ Everything else (Apple ID sign-in, signing, installing) is the same as the offic
 2. Download the latest version from this repository's **Releases** page and check its hash against `SHA256SUMS.txt`.
 3. Plug in your iPhone, open iloader MemoryPlus and sign in with your Apple ID (a secondary one is recommended).
 4. If sign-in fails with error **-80045**, pick a **Windows** anisette server in the settings.
-5. Use **Import IPA** to install the app: Memory+ is added automatically.
+5. Click **Madeira (Memory+)** (or use **Import IPA** for any other app): Memory+ is added automatically.
+
+### Windows Security and Madeira
+
+Madeira bundles Wine, whose Windows DLLs many antivirus programs flag as a false positive. If the install fails because Windows Security blocked a file, add a **temporary** folder exclusion for the folder shown under the installer buttons (`%TEMP%\iloader-memoryplus-madeira`; the **Copy folder** button copies it), install, then **remove the exclusion**. Only that folder is needed: the IPA is downloaded in memory and never saved anywhere else.
 
 Windows may show "Windows protected your PC" because the exe is not code-signed: click *More info → Run anyway*.
 

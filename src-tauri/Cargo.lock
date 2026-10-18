@@ -2634,6 +2634,7 @@ dependencies = [
  "rustls",
  "serde",
  "serde_json",
+ "sha2 0.11.0",
  "strum",
  "tauri",
  "tauri-build",
@@ -2649,6 +2650,7 @@ dependencies = [
  "tracing-appender",
  "tracing-subscriber",
  "uuid",
+ "zip 8.6.0",
 ]
 
 [[package]]

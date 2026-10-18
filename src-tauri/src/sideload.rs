@@ -203,3 +203,167 @@ pub async fn download(url: impl AsRef<str>, dest: &PathBuf) -> Result<(), AppErr
 
     Ok(())
 }
+
+// MemoryPlus: one-click install of the latest official Madeira release
+// (https://github.com/willfaust/Madeira), signed with Increased Memory Limit.
+
+const MADEIRA_LATEST_RELEASE: &str =
+    "https://api.github.com/repos/willfaust/Madeira/releases/latest";
+
+/// Folder (inside the system temp dir) that holds the extracted Madeira bundle.
+/// Madeira ships Wine's Windows DLLs, which antivirus software often flags as a
+/// false positive, so this is the one folder users may need to exclude.
+pub const MADEIRA_WORK_DIR: &str = "iloader-memoryplus-madeira";
+
+#[tauri::command]
+pub fn madeira_work_dir() -> String {
+    std::env::temp_dir()
+        .join(MADEIRA_WORK_DIR)
+        .to_string_lossy()
+        .to_string()
+}
+
+#[tauri::command]
+pub async fn install_madeira_operation(
+    window: Window,
+    device_state: State<'_, DeviceInfoMutex>,
+    sideloader_state: State<'_, SideloaderMutex>,
+) -> Result<(), AppError> {
+    let op = Operation::new("install_madeira".to_string(), &window);
+    op.start("download")?;
+    let ipa = op.fail_if_err("download", download_latest_madeira().await)?;
+
+    op.move_on("download", "extract")?;
+    let work_dir = std::env::temp_dir().join(MADEIRA_WORK_DIR);
+    let extract_dir = work_dir.clone();
+    let app_dir = op.fail_if_err(
+        "extract",
+        tokio::task::spawn_blocking(move || extract_ipa(ipa, &extract_dir))
+            .await
+            .map_err(|e| AppError::Filesystem("Failed to extract Madeira".into(), e.to_string()))
+            .and_then(|r| r),
+    )?;
+
+    op.move_on("extract", "install")?;
+    // The extracted .app is signed in place, then removed once it is installed
+    let result = sideload(
+        device_state,
+        sideloader_state,
+        app_dir.to_string_lossy().to_string(),
+    )
+    .await;
+    let _ = tokio::fs::remove_dir_all(&work_dir).await;
+    op.fail_if_err("install", result)?;
+    op.complete("install")?;
+    Ok(())
+}
+
+/// Downloads the newest Madeira IPA from GitHub and checks it against the
+/// SHA-256 file published next to it.
+async fn download_latest_madeira() -> Result<Vec<u8>, AppError> {
+    let client = reqwest::Client::builder()
+        .user_agent("iloader-memoryplus")
+        .build()
+        .map_err(|e| AppError::Download(e.to_string()))?;
+
+    let release = get_text(&client, MADEIRA_LATEST_RELEASE).await?;
+    let release: serde_json::Value = serde_json::from_str(&release)
+        .map_err(|e| AppError::Download(format!("Unexpected GitHub response: {e}")))?;
+    let assets = release["assets"].as_array().cloned().unwrap_or_default();
+    let asset_url = |name: &str| {
+        assets
+            .iter()
+            .find(|a| a["name"].as_str() == Some(name))
+            .and_then(|a| a["browser_download_url"].as_str())
+            .map(str::to_string)
+    };
+
+    let ipa_name = assets
+        .iter()
+        .filter_map(|a| a["name"].as_str())
+        .find(|n| n.ends_with(".ipa"))
+        .map(str::to_string)
+        .ok_or_else(|| AppError::Download("The latest Madeira release has no IPA".into()))?;
+    let ipa_url = asset_url(&ipa_name).unwrap_or_default();
+    tracing::info!("Downloading {ipa_name} from {ipa_url}");
+
+    let ipa = client
+        .get(&ipa_url)
+        .send()
+        .await
+        .and_then(|r| r.error_for_status())
+        .map_err(|e| AppError::Download(e.to_string()))?
+        .bytes()
+        .await
+        .map_err(|e| AppError::Download(e.to_string()))?
+        .to_vec();
+
+    match asset_url(&format!("{ipa_name}.sha256")) {
+        Some(sha_url) => {
+            let expected = get_text(&client, &sha_url).await?;
+            let expected = expected.split_whitespace().next().unwrap_or("").to_lowercase();
+            let actual = hex_sha256(&ipa);
+            if expected != actual {
+                return Err(AppError::Download(format!(
+                    "{ipa_name} does not match its published SHA-256 (expected {expected}, got {actual})"
+                )));
+            }
+            tracing::info!("{ipa_name} SHA-256 verified: {actual}");
+        }
+        None => tracing::warn!("{ipa_name} has no published SHA-256, skipping the check"),
+    }
+
+    Ok(ipa)
+}
+
+async fn get_text(client: &reqwest::Client, url: &str) -> Result<String, AppError> {
+    client
+        .get(url)
+        .send()
+        .await
+        .and_then(|r| r.error_for_status())
+        .map_err(|e| AppError::Download(e.to_string()))?
+        .text()
+        .await
+        .map_err(|e| AppError::Download(e.to_string()))
+}
+
+fn hex_sha256(data: &[u8]) -> String {
+    use sha2::{Digest, Sha256};
+    Sha256::digest(data)
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect()
+}
+
+/// Extracts the IPA into `work_dir` and returns the path of its `.app` bundle.
+fn extract_ipa(ipa: Vec<u8>, work_dir: &PathBuf) -> Result<PathBuf, AppError> {
+    let blocked_hint = format!(
+        "Could not extract Madeira. If Windows Security blocked a file, that is a false positive on Madeira's Wine DLLs: add a temporary exclusion for the folder {} and try again",
+        work_dir.display()
+    );
+    if work_dir.exists() {
+        std::fs::remove_dir_all(work_dir)
+            .map_err(|e| AppError::Filesystem(blocked_hint.clone(), e.to_string()))?;
+    }
+    std::fs::create_dir_all(work_dir)
+        .map_err(|e| AppError::Filesystem(blocked_hint.clone(), e.to_string()))?;
+
+    let mut archive = zip::ZipArchive::new(std::io::Cursor::new(ipa))
+        .map_err(|e| AppError::Download(format!("The Madeira IPA is not a valid archive: {e}")))?;
+    archive
+        .extract(work_dir)
+        .map_err(|e| AppError::Filesystem(blocked_hint.clone(), e.to_string()))?;
+
+    std::fs::read_dir(work_dir.join("Payload"))
+        .map_err(|e| AppError::Filesystem("The Madeira IPA has no Payload folder".into(), e.to_string()))?
+        .filter_map(Result::ok)
+        .map(|entry| entry.path())
+        .find(|path| path.is_dir() && path.extension().is_some_and(|ext| ext == "app"))
+        .ok_or_else(|| {
+            AppError::Filesystem(
+                "The Madeira IPA has no app bundle".into(),
+                work_dir.display().to_string(),
+            )
+        })
+}

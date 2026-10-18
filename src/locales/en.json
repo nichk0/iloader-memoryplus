@@ -41,6 +41,9 @@
     "livecontainer_sidestore_stable": "LiveContainer + SideStore (Stable)",
     "livecontainer_sidestore_nightly": "LiveContainer + SideStore (Nightly)",
     "import_ipa": "Import IPA",
+    "madeira": "Madeira (Memory+)",
+    "madeira_hint": "Madeira: Windows Security may flag its Wine files (false positive). If the install fails, add a temporary exclusion for this folder, then remove it after installing:",
+    "madeira_copy_folder": "Copy folder",
     "settings": "Settings",
     "must_be_logged_in": "You must be logged in!",
     "must_select_device": "You must select a device!",
@@ -116,7 +119,13 @@
     "install_livecontainer_step_install": "Sign & Install LiveContainer+SideStore",
     "install_livecontainer_step_pairing": "Place Pairing File",
     "sideload_title": "Installing App",
-    "sideload_step_install": "Sign & Install App"
+    "sideload_step_install": "Sign & Install App",
+    "install_madeira_title": "Installing Madeira",
+    "install_madeira_success_title": "Madeira Installed!",
+    "install_madeira_success_message": "Madeira is installed with Memory+. If you added a Windows Security exclusion, remove it now. On the iPhone, open Madeira and follow its JIT setup.",
+    "install_madeira_step_download": "Download latest Madeira & verify SHA-256",
+    "install_madeira_step_extract": "Extract Madeira",
+    "install_madeira_step_install": "Sign & Install Madeira with Memory+"
   },
   "certificates": {
     "manage": "Manage Certificates",

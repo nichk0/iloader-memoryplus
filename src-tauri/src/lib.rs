@@ -25,7 +25,10 @@ use crate::{
         place_pairing_cmd,
     },
     secure_storage::{force_disable_keyring, keyring_available},
-    sideload::{SideloaderMutex, install_sidestore_operation, sideload_operation},
+    sideload::{
+        SideloaderMutex, install_madeira_operation, install_sidestore_operation,
+        madeira_work_dir, sideload_operation,
+    },
 };
 use tauri::Manager;
 use tracing_subscriber::{Layer, Registry, fmt, layer::SubscriberExt, util::SubscriberInitExt};
@@ -113,6 +116,8 @@ pub fn run() {
             sideload_operation,
             set_selected_device,
             install_sidestore_operation,
+            install_madeira_operation,
+            madeira_work_dir,
             get_certificates,
             revoke_certificate,
             list_app_ids,

@@ -296,6 +296,22 @@ button:active:not(:disabled) {
   min-width: 160px;
 }
 
+.madeira-hint {
+  margin-top: 0.85rem;
+  line-height: 1.6;
+  word-break: break-all;
+}
+
+.madeira-hint code {
+  color: rgba(247, 249, 255, 0.8);
+}
+
+.madeira-hint .toolbar-button {
+  margin-left: 0.4rem;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.8rem;
+}
+
 .workspace-list {
   border-radius: 1.25rem;
   overflow: hidden;
