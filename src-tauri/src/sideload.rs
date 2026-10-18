@@ -215,12 +215,29 @@ const MADEIRA_LATEST_RELEASE: &str =
 /// false positive, so this is the one folder users may need to exclude.
 pub const MADEIRA_WORK_DIR: &str = "iloader-memoryplus-madeira";
 
+/// Returns the Madeira folder, creating it so Windows Security can exclude it
+/// before the first install.
 #[tauri::command]
 pub fn madeira_work_dir() -> String {
-    std::env::temp_dir()
-        .join(MADEIRA_WORK_DIR)
-        .to_string_lossy()
-        .to_string()
+    let dir = std::env::temp_dir().join(MADEIRA_WORK_DIR);
+    let _ = std::fs::create_dir_all(&dir);
+    dir.to_string_lossy().to_string()
+}
+
+fn antivirus_hint(work_dir: &PathBuf) -> String {
+    format!(
+        "Windows Security blocked one of Madeira's files. This is a false positive on the Wine files bundled with Madeira. Add a temporary exclusion for the folder {} (Windows Security > Virus & threat protection > Manage settings > Exclusions), try again, then remove the exclusion",
+        work_dir.display()
+    )
+}
+
+/// Empties the Madeira folder but keeps the folder itself, so an exclusion
+/// for it can still be added or kept.
+fn clear_work_dir(work_dir: &PathBuf) -> std::io::Result<()> {
+    if work_dir.exists() {
+        std::fs::remove_dir_all(work_dir)?;
+    }
+    std::fs::create_dir_all(work_dir)
 }
 
 #[tauri::command]
@@ -245,14 +262,23 @@ pub async fn install_madeira_operation(
     )?;
 
     op.move_on("extract", "install")?;
-    // The extracted .app is signed in place, then removed once it is installed
+    // The extracted .app is signed in place; the folder is emptied afterwards
     let result = sideload(
         device_state,
         sideloader_state,
         app_dir.to_string_lossy().to_string(),
     )
-    .await;
-    let _ = tokio::fs::remove_dir_all(&work_dir).await;
+    .await
+    .map_err(|e| {
+        // os error 225: Windows refused the file because it "contains a virus"
+        let message = e.to_string();
+        if message.contains("os error 225") {
+            AppError::Filesystem(antivirus_hint(&work_dir), message)
+        } else {
+            e
+        }
+    });
+    let _ = clear_work_dir(&work_dir);
     op.fail_if_err("install", result)?;
     op.complete("install")?;
     Ok(())
@@ -338,15 +364,8 @@ fn hex_sha256(data: &[u8]) -> String {
 
 /// Extracts the IPA into `work_dir` and returns the path of its `.app` bundle.
 fn extract_ipa(ipa: Vec<u8>, work_dir: &PathBuf) -> Result<PathBuf, AppError> {
-    let blocked_hint = format!(
-        "Could not extract Madeira. If Windows Security blocked a file, that is a false positive on Madeira's Wine DLLs: add a temporary exclusion for the folder {} and try again",
-        work_dir.display()
-    );
-    if work_dir.exists() {
-        std::fs::remove_dir_all(work_dir)
-            .map_err(|e| AppError::Filesystem(blocked_hint.clone(), e.to_string()))?;
-    }
-    std::fs::create_dir_all(work_dir)
+    let blocked_hint = antivirus_hint(work_dir);
+    clear_work_dir(work_dir)
         .map_err(|e| AppError::Filesystem(blocked_hint.clone(), e.to_string()))?;
 
     let mut archive = zip::ZipArchive::new(std::io::Cursor::new(ipa))

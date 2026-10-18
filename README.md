@@ -24,7 +24,7 @@ Everything else (Apple ID sign-in, signing, installing) is the same as the offic
 
 ### Windows Security and Madeira
 
-Madeira bundles Wine, whose Windows DLLs many antivirus programs flag as a false positive. If the install fails because Windows Security blocked a file, add a **temporary** folder exclusion for the folder shown under the installer buttons (`%TEMP%\iloader-memoryplus-madeira`; the **Copy folder** button copies it), install, then **remove the exclusion**. Only that folder is needed: the IPA is downloaded in memory and never saved anywhere else.
+Madeira bundles Wine, whose Windows DLLs many antivirus programs flag as a false positive. If the install fails because Windows Security blocked a file, add a **temporary** folder exclusion for the folder shown under the installer buttons (`%TEMP%\iloader-memoryplus-madeira`, created when the app starts; the **Copy folder** button copies it), install, then **remove the exclusion**. Only that folder is needed: the IPA is downloaded in memory and never saved anywhere else.
 
 Windows may show "Windows protected your PC" because the exe is not code-signed: click *More info → Run anyway*.
 
