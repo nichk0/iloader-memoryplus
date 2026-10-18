@@ -1,6 +1,6 @@
 name: "Build iloader MemoryPlus (Windows)"
 
-# Parte quando pubblichi un tag (es. v2.3.10-mp1) oppure a mano da Actions > Run workflow.
+# Runs when a tag is pushed (e.g. v2.3.10-mp1) or manually from Actions > Run workflow.
 on:
   push:
     tags:
@@ -38,11 +38,11 @@ jobs:
         with:
           args: "--bundles nsis"
           tagName: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
-          releaseName: "iloader MemoryPlus ${{ github.ref_name }} (non ufficiale)"
+          releaseName: "iloader MemoryPlus ${{ github.ref_name }} (unofficial)"
           releaseBody: |
-            Build NON ufficiale di [iloader](https://github.com/nab138/iloader) con "Increased Memory Limit" attivo per le app installate.
-            Compilata automaticamente da GitHub Actions a partire dal codice di questo repository: vedi il README per le modifiche.
-            Gli hash SHA-256 dei file sono in `SHA256SUMS.txt`.
+            UNOFFICIAL build of [iloader](https://github.com/nab138/iloader) with "Increased Memory Limit" enabled for installed apps.
+            Built automatically by GitHub Actions from this repository's code: see the README for the changes.
+            SHA-256 hashes of the files are in `SHA256SUMS.txt`.
           releaseDraft: false
           prerelease: false
           assetNamePattern: "[name]-[platform]-[arch][ext]"

@@ -65,7 +65,7 @@ pub async fn sideload(
         .install_app(
             &provider,
             app_path.into(),
-            // MemoryPlus: chiede "Increased Memory Limit" per ogni app installata
+            // MemoryPlus: request "Increased Memory Limit" for every installed app
             true,
             None::<fn(f32) -> std::future::Ready<()>>,
             Some(&device.pairing),

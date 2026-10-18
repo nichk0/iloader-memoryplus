@@ -187,8 +187,8 @@ function App() {
           <span className="version-pill">
             {t("version")} {version}
           </span>
-          <span className="version-pill" title="Build non ufficiale: aggiunge Increased Memory Limit alle app installate">
-            Non ufficiale · Memory+
+          <span className="version-pill" title="Unofficial build: adds Increased Memory Limit to installed apps">
+            Unofficial · Memory+
           </span>
         </div>
         <div className="header-actions">

@@ -1,38 +1,36 @@
-# iloader MemoryPlus (non ufficiale)
+# iloader MemoryPlus (unofficial)
 
-> **Questa NON è la versione ufficiale di iloader.** È un fork di [iloader](https://github.com/nab138/iloader) di [nab138](https://github.com/nab138), non affiliato né approvato dall'autore originale. L'iloader ufficiale si scarica solo da [iloader.app](https://iloader.app) o da [github.com/nab138/iloader](https://github.com/nab138/iloader).
->
-> *Unofficial fork of iloader that requests the "Increased Memory Limit" capability for every installed app. Not affiliated with or endorsed by the original author.*
+> **This is NOT the official iloader.** It is a fork of [iloader](https://github.com/nab138/iloader) by [nab138](https://github.com/nab138), not affiliated with or endorsed by the original author. The official iloader is only available from [iloader.app](https://iloader.app) and [github.com/nab138/iloader](https://github.com/nab138/iloader).
 
-## Cosa cambia rispetto all'originale
+## What is different from the original
 
-Solo queste cose, tutte visibili nella cronologia dei commit:
+Only these changes, all visible in the commit history:
 
-1. **Increased Memory Limit (Memory+) sempre attivo.** Quando installi un'app con *Importa IPA*, iloader aggiunge all'App ID la capability "Increased Memory Limit". Serve ad app come [Madeira](https://github.com/willfaust/Madeira), che senza Memory+ non riescono ad avviare i giochi. Nel codice è una riga: `false` → `true` in `src-tauri/src/sideload.rs`.
-2. **Aggiornamento automatico disattivato.** L'iloader ufficiale si aggiorna da solo alla versione ufficiale, e così Memory+ andrebbe perso.
-3. **Nome e identificativo diversi** (`iloader MemoryPlus`, `app.iloadermemoryplus`), così non si confonde con l'iloader ufficiale e può stare installato accanto a lui.
-4. **Compilazione automatica** con GitHub Actions: gli exe nella pagina Releases sono compilati dal codice di questo repository, non caricati a mano.
+1. **Increased Memory Limit (Memory+) always on.** When you install an app with *Import IPA*, iloader adds the "Increased Memory Limit" capability to its App ID. Apps like [Madeira](https://github.com/willfaust/Madeira) need it: without Memory+ their games fail to start. In the code it is one line: `false` → `true` in `src-tauri/src/sideload.rs`.
+2. **Auto-update disabled.** The official iloader updates itself to the official release, which would silently remove Memory+.
+3. **Its own name and identifier** (`iloader MemoryPlus`, `app.iloadermemoryplus`), so it is never mistaken for the official app and can be installed next to it.
+4. **Automatic builds** with GitHub Actions: the files on the Releases page are built from this repository's code, not uploaded by hand.
 
-Tutto il resto (accesso Apple ID, firma, installazione) è identico all'iloader ufficiale su cui è basato (**v2.3.10**).
+Everything else (Apple ID sign-in, signing, installing) is the same as the official iloader it is based on (**v2.3.10**).
 
-## Come si usa
+## How to use
 
-1. Installa [iTunes](https://apple.co/ms) (dal sito Apple, non dal Microsoft Store).
-2. Scarica l'ultima versione dalla pagina **Releases** di questo repository e controlla l'hash con `SHA256SUMS.txt`.
-3. Collega l'iPhone, apri iloader MemoryPlus e accedi con il tuo Apple ID (meglio uno secondario).
-4. Se l'accesso dà l'errore **-80045**, nelle impostazioni scegli un server anisette **Windows**.
-5. Usa **Importa IPA** per installare l'app: Memory+ viene aggiunto da solo.
+1. Install [iTunes](https://apple.co/ms) (from Apple's website, not the Microsoft Store).
+2. Download the latest version from this repository's **Releases** page and check its hash against `SHA256SUMS.txt`.
+3. Plug in your iPhone, open iloader MemoryPlus and sign in with your Apple ID (a secondary one is recommended).
+4. If sign-in fails with error **-80045**, pick a **Windows** anisette server in the settings.
+5. Use **Import IPA** to install the app: Memory+ is added automatically.
 
-Windows potrebbe mostrare "PC protetto da Windows" perché l'exe non è firmato: *Ulteriori informazioni → Esegui comunque*.
+Windows may show "Windows protected your PC" because the exe is not code-signed: click *More info → Run anyway*.
 
-## Avvertenze
+## Disclaimer
 
-- Usalo a tuo rischio: gestisce le credenziali del tuo Apple ID, come ogni sideloader. Il codice è tutto qui, controllalo.
-- Per problemi che **non** riguardano Memory+ fai riferimento all'iloader ufficiale. Per problemi di questo fork apri una issue **qui**, non sul repository originale.
+- Use at your own risk: like every sideloader, it handles your Apple ID credentials. All the code is here, check it.
+- For issues **not** related to Memory+, refer to the official iloader. For issues with this fork, open an issue **here**, not on the original repository.
 
 ---
 
-# README originale di iloader
+# Original iloader README
 
 ## How to use
 
