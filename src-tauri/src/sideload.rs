@@ -224,6 +224,18 @@ pub fn madeira_work_dir() -> String {
     dir.to_string_lossy().to_string()
 }
 
+/// Opens Windows Security on "Virus & threat protection settings", where the
+/// user can add the exclusion themselves (nothing is changed automatically).
+#[tauri::command]
+pub fn open_windows_security() -> Result<(), AppError> {
+    #[cfg(windows)]
+    std::process::Command::new("explorer.exe")
+        .arg("windowsdefender://threatsettings")
+        .spawn()
+        .map_err(|e| AppError::Misc(format!("Could not open Windows Security: {e}")))?;
+    Ok(())
+}
+
 fn antivirus_hint(work_dir: &PathBuf) -> String {
     format!(
         "Windows Security blocked one of Madeira's files. This is a false positive on the Wine files bundled with Madeira. Add a temporary exclusion for the folder {} (Windows Security > Virus & threat protection > Manage settings > Exclusions), try again, then remove the exclusion",

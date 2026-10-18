@@ -3,7 +3,7 @@ import "./App.css";
 import { AppleID } from "./AppleID";
 import { Device, DeviceInfo } from "./Device";
 import { invoke } from "@tauri-apps/api/core";
-import { open as openFileDialog } from "@tauri-apps/plugin-dialog";
+import { ask, open as openFileDialog } from "@tauri-apps/plugin-dialog";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import {
   sideloadOperation,
@@ -74,6 +74,20 @@ function App() {
       .then(setMadeiraDir)
       .catch((e) => console.error("Unable to get Madeira folder:", e));
   }, []);
+
+  // Copies the Madeira folder and opens Windows Security, where the user adds the exclusion
+  const openWindowsSecurity = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(madeiraDir);
+      await invoke("open_windows_security");
+      toast.info(t("app.madeira_security_steps", { folder: madeiraDir }), {
+        duration: 20000,
+      });
+    } catch (e) {
+      console.error("Unable to open Windows Security:", e);
+      toast.error(String(e));
+    }
+  }, [madeiraDir, t]);
 
   const shortcutLabel = useCallback(
     (mac: string, windows: string, linux?: string) => {
@@ -381,8 +395,27 @@ function App() {
                   {t("app.livecontainer_sidestore_nightly")}
                 </button>
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     if (!ensuredLoggedIn() || !ensureSelectedDevice()) return;
+                    // Offer to open Windows Security first; the user adds the exclusion
+                    if (
+                      madeiraDir &&
+                      (await ask(t("app.madeira_exclusion_ask", { folder: madeiraDir }), {
+                        title: t("app.madeira"),
+                        kind: "info",
+                        okLabel: t("app.madeira_open_security"),
+                        cancelLabel: t("app.madeira_install_now"),
+                      }))
+                    ) {
+                      await openWindowsSecurity();
+                      const ready = await ask(t("app.madeira_exclusion_ready", { folder: madeiraDir }), {
+                        title: t("app.madeira"),
+                        kind: "info",
+                        okLabel: t("app.madeira_install"),
+                        cancelLabel: t("app.madeira_cancel"),
+                      });
+                      if (!ready) return;
+                    }
                     startOperation(installMadeiraOperation, {}).catch((e) => {
                       console.log(e.type);
                       console.error(e.message);
@@ -423,6 +456,9 @@ function App() {
                     }}
                   >
                     {t("app.madeira_copy_folder")}
+                  </button>
+                  <button className="toolbar-button" onClick={openWindowsSecurity}>
+                    {t("app.madeira_open_security")}
                   </button>
                 </p>
               )}

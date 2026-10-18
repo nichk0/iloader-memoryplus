@@ -27,7 +27,7 @@ use crate::{
     secure_storage::{force_disable_keyring, keyring_available},
     sideload::{
         SideloaderMutex, install_madeira_operation, install_sidestore_operation,
-        madeira_work_dir, sideload_operation,
+        madeira_work_dir, open_windows_security, sideload_operation,
     },
 };
 use tauri::Manager;
@@ -118,6 +118,7 @@ pub fn run() {
             install_sidestore_operation,
             install_madeira_operation,
             madeira_work_dir,
+            open_windows_security,
             get_certificates,
             revoke_certificate,
             list_app_ids,
