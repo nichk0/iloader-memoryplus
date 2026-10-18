@@ -55,6 +55,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force out | Out-Null
           Copy-Item src-tauri/target/release/iloader.exe out/iloader-MemoryPlus-portable.exe
-          Get-ChildItem src-tauri/target/release/bundle/nsis/*.exe | Copy-Item -Destination out/
+          # Same name tauri-action gives the installer on the release page, so SHA256SUMS matches it
+          Get-ChildItem src-tauri/target/release/bundle/nsis/*.exe | Select-Object -First 1 | Copy-Item -Destination out/iloader.MemoryPlus-windows-x64.exe
           Get-ChildItem out -File | ForEach-Object { "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name } | Set-Content out/SHA256SUMS.txt
           gh release upload "${{ github.ref_name }}" out/iloader-MemoryPlus-portable.exe out/SHA256SUMS.txt --clobber
