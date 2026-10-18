@@ -1,28 +1,38 @@
-<a href="https://iloader.app">
-  <picture align="left" >
-    <source media="(prefers-color-scheme: dark)" srcset="/iloader.svg">
-    <img align="left" width="90" height="90" src="/iloader-dark.svg">
-  </picture>
-  
-  <div id="user-content-toc">
-    <ul style="list-style: none;">
-      <summary>
-        <h1>iloader</h1>
-      </summary>
-    </ul>
-  </div>
-</a>
+# iloader MemoryPlus (non ufficiale)
+
+> **Questa NON è la versione ufficiale di iloader.** È un fork di [iloader](https://github.com/nab138/iloader) di [nab138](https://github.com/nab138), non affiliato né approvato dall'autore originale. L'iloader ufficiale si scarica solo da [iloader.app](https://iloader.app) o da [github.com/nab138/iloader](https://github.com/nab138/iloader).
+>
+> *Unofficial fork of iloader that requests the "Increased Memory Limit" capability for every installed app. Not affiliated with or endorsed by the original author.*
+
+## Cosa cambia rispetto all'originale
+
+Solo queste cose, tutte visibili nella cronologia dei commit:
+
+1. **Increased Memory Limit (Memory+) sempre attivo.** Quando installi un'app con *Importa IPA*, iloader aggiunge all'App ID la capability "Increased Memory Limit". Serve ad app come [Madeira](https://github.com/willfaust/Madeira), che senza Memory+ non riescono ad avviare i giochi. Nel codice è una riga: `false` → `true` in `src-tauri/src/sideload.rs`.
+2. **Aggiornamento automatico disattivato.** L'iloader ufficiale si aggiorna da solo alla versione ufficiale, e così Memory+ andrebbe perso.
+3. **Nome e identificativo diversi** (`iloader MemoryPlus`, `app.iloadermemoryplus`), così non si confonde con l'iloader ufficiale e può stare installato accanto a lui.
+4. **Compilazione automatica** con GitHub Actions: gli exe nella pagina Releases sono compilati dal codice di questo repository, non caricati a mano.
+
+Tutto il resto (accesso Apple ID, firma, installazione) è identico all'iloader ufficiale su cui è basato (**v2.3.10**).
+
+## Come si usa
+
+1. Installa [iTunes](https://apple.co/ms) (dal sito Apple, non dal Microsoft Store).
+2. Scarica l'ultima versione dalla pagina **Releases** di questo repository e controlla l'hash con `SHA256SUMS.txt`.
+3. Collega l'iPhone, apri iloader MemoryPlus e accedi con il tuo Apple ID (meglio uno secondario).
+4. Se l'accesso dà l'errore **-80045**, nelle impostazioni scegli un server anisette **Windows**.
+5. Usa **Importa IPA** per installare l'app: Memory+ viene aggiunto da solo.
+
+Windows potrebbe mostrare "PC protetto da Windows" perché l'exe non è firmato: *Ulteriori informazioni → Esegui comunque*.
+
+## Avvertenze
+
+- Usalo a tuo rischio: gestisce le credenziali del tuo Apple ID, come ogni sideloader. Il codice è tutto qui, controllalo.
+- Per problemi che **non** riguardano Memory+ fai riferimento all'iloader ufficiale. Per problemi di questo fork apri una issue **qui**, non sul repository originale.
 
 ---
 
-[![Build iloader](https://img.shields.io/github/actions/workflow/status/nab138/iloader/build.yml?style=flat&logo=github&logoColor=white&label=Build%20iloader)](https://github.com/nab138/iloader/actions/workflows/build.yml) ![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2Fnab138%2F28258aff7e3f1d3a3084a21f4cff2e57%2Fraw%2Filoader_downloads.json&style=flat)
-[![Sponsor](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/nab138)
-
-Install SideStore (or other apps) and import your pairing file with ease
-
-**This repository and [iloader.app](https://iloader.app) are the only official ways to download iloader. There is also an unofficial [Homebrew cask](https://formulae.brew.sh/cask/iloader), an unofficial [AUR package](https://aur.archlinux.org/packages/iloader-bin), and an unofficial [Fedora COPR repository](https://copr.fedorainfracloud.org/coprs/anudeepd/iloader) maintained by the community. Do not download from any other sources or websites.**
-
-<img width="1918" height="998" alt="iloader0" src="https://github.com/user-attachments/assets/93cd135d-6d89-46ee-9b9f-12c596806911" />
+# README originale di iloader
 
 ## How to use
 

@@ -22,7 +22,6 @@ import { AppIds } from "./pages/AppIds";
 import { Settings } from "./pages/Settings";
 import { Pairing } from "./pages/Pairing";
 import { getVersion } from "@tauri-apps/api/app";
-import { checkForUpdates } from "./update";
 import logo from "./iloader.svg";
 import { GlassCard } from "./components/GlassCard";
 import { useTranslation } from "react-i18next";
@@ -66,10 +65,6 @@ function App() {
       setVersion(version);
     };
     fetchVersion();
-  }, []);
-
-  useEffect(() => {
-    checkForUpdates();
   }, []);
 
   const shortcutLabel = useCallback(
@@ -185,12 +180,15 @@ function App() {
           <div className="title-block">
             <img src={logo} alt={t("app.logo_alt")} className="logo" />
             <div>
-              <h1 className="title">iloader</h1>
+              <h1 className="title">iloader MemoryPlus</h1>
               <p className="subtitle">{t("subtitle")}</p>
             </div>
           </div>
           <span className="version-pill">
             {t("version")} {version}
+          </span>
+          <span className="version-pill" title="Build non ufficiale: aggiunge Increased Memory Limit alle app installate">
+            Non ufficiale · Memory+
           </span>
         </div>
         <div className="header-actions">

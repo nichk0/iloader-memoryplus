@@ -1,0 +1,60 @@
+name: "Build iloader MemoryPlus (Windows)"
+
+# Parte quando pubblichi un tag (es. v2.3.10-mp1) oppure a mano da Actions > Run workflow.
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  build:
+    permissions:
+      contents: write
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Add MSVC to PATH
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install Perl and Make
+        run: choco install strawberryperl make --no-progress
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install frontend dependencies
+        run: bun i --frozen-lockfile
+
+      - name: Build installer and release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: "--bundles nsis"
+          tagName: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+          releaseName: "iloader MemoryPlus ${{ github.ref_name }} (non ufficiale)"
+          releaseBody: |
+            Build NON ufficiale di [iloader](https://github.com/nab138/iloader) con "Increased Memory Limit" attivo per le app installate.
+            Compilata automaticamente da GitHub Actions a partire dal codice di questo repository: vedi il README per le modifiche.
+            Gli hash SHA-256 dei file sono in `SHA256SUMS.txt`.
+          releaseDraft: false
+          prerelease: false
+          assetNamePattern: "[name]-[platform]-[arch][ext]"
+
+      - name: Upload portable exe and checksums
+        if: github.ref_type == 'tag'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          New-Item -ItemType Directory -Force out | Out-Null
+          Copy-Item src-tauri/target/release/iloader.exe out/iloader-MemoryPlus-portable.exe
+          Get-ChildItem src-tauri/target/release/bundle/nsis/*.exe | Copy-Item -Destination out/
+          Get-ChildItem out -File | ForEach-Object { "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name } | Set-Content out/SHA256SUMS.txt
+          gh release upload "${{ github.ref_name }}" out/iloader-MemoryPlus-portable.exe out/SHA256SUMS.txt --clobber
