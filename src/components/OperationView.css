@@ -124,6 +124,22 @@
   color: rgb(241, 212, 115);
 }
 
+.madeira-next-steps h3 {
+  margin: 0.5rem 0;
+}
+
+.madeira-next-steps ol {
+  margin: 0 0 0.75rem 0;
+  padding-left: 1.5rem;
+  line-height: 1.6;
+}
+
+.madeira-next-steps .toolbar-button {
+  margin-left: 0.4rem;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.85rem;
+}
+
 .operation-more-details {
   cursor: pointer;
   padding-top: 0.25rem;

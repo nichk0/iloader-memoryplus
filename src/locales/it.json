@@ -88,7 +88,8 @@
     "max_certs_desc": "iloader revocherà i certificati esistenti e ne genererà uno nuovo.",
     "hide_certificate_list": "Nascondi lista certificati",
     "choose_what_to_revoke": "Scegli quale revocare",
-    "continue": "Continua"
+    "continue": "Continua",
+    "anisette_switched": "Apple ha rifiutato il server anisette scelto, quindi iloader MemoryPlus ha eseguito l'accesso con {{server}} e d'ora in poi userà quello."
   },
   "device": {
     "title": "iDevice",
@@ -106,6 +107,16 @@
     "completed": "Operazione completata",
     "please_wait": "Attendi...",
     "copy_error_clipboard": "Errore copiato negli appunti"
+  },
+  "madeira_steps": {
+    "title": "Ora sull'iPhone:",
+    "developer_mode": "Impostazioni > Privacy e sicurezza > Modalità sviluppatore: attivala e riavvia.",
+    "trust": "Impostazioni > Generali > VPN e gestione dispositivi: autorizza l'app sviluppatore del tuo Apple ID.",
+    "open_madeira": "Apri Madeira e installa LocalDevVPN quando te lo chiede (con il Wi-Fi acceso).",
+    "pair": "Scegli In-app pairing, poi Impostazioni > Privacy e sicurezza > Modalità sviluppatore > Pair with Madeira e inserisci il codice.",
+    "check": "Nelle Settings di Madeira, JIT e Memory+ devono essere entrambi verdi: a quel punto sei pronto per giocare.",
+    "exclusion_remove": "Se hai aggiunto un'esclusione in Sicurezza di Windows, toglila adesso:",
+    "exclusion_failed": "Se Sicurezza di Windows ha bloccato un file di Madeira, aggiungi l'esclusione e riprova:"
   },
   "operations": {
     "install_sidestore_title": "Installando SideStore",

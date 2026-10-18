@@ -9,6 +9,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { openUrl } from "@tauri-apps/plugin-opener";
+import { invoke } from "@tauri-apps/api/core";
 import { Trans, useTranslation } from "react-i18next";
 import { ErrorVariant, getErrorSuggestions, parseLinkToken } from "../errors";
 import { useStore } from "../StoreContext";
@@ -164,6 +165,33 @@ export default ({
         <p className="operation-success-message">
           {t(operation.successMessageKey!)}
         </p>
+      )}
+      {done && operation.id === "install_madeira" && (
+        <div className="madeira-next-steps">
+          {!opFailed && (
+            <>
+              <h3>{t("madeira_steps.title")}</h3>
+              <ol>
+                <li>{t("madeira_steps.developer_mode")}</li>
+                <li>{t("madeira_steps.trust")}</li>
+                <li>{t("madeira_steps.open_madeira")}</li>
+                <li>{t("madeira_steps.pair")}</li>
+                <li>{t("madeira_steps.check")}</li>
+              </ol>
+            </>
+          )}
+          <p>
+            {t(opFailed ? "madeira_steps.exclusion_failed" : "madeira_steps.exclusion_remove")}{" "}
+            <button
+              className="toolbar-button"
+              onClick={() =>
+                invoke("open_windows_security").catch((e) => toast.error(String(e)))
+              }
+            >
+              {t("app.madeira_open_security")}
+            </button>
+          </p>
+        </div>
       )}
       {done && !(!opFailed && operation.successMessageKey) && <p></p>}
       {opFailed && done && (

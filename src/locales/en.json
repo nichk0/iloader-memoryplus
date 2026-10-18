@@ -90,7 +90,8 @@
     "hide_certificate_list": "Hide certificate list",
     "choose_what_to_revoke": "Choose what to revoke",
     "continue": "Continue",
-    "no_keyring_available": "Unable to save credentials on this device."
+    "no_keyring_available": "Unable to save credentials on this device.",
+    "anisette_switched": "Apple refused the selected anisette server, so iloader MemoryPlus signed in with {{server}} and will use it from now on."
   },
   "device": {
     "title": "iDevice",
@@ -111,6 +112,16 @@
     "completed": "Operation completed",
     "please_wait": "Please wait...",
     "copy_error_clipboard": "Copy error to clipboard"
+  },
+  "madeira_steps": {
+    "title": "Now on your iPhone:",
+    "developer_mode": "Settings > Privacy & Security > Developer Mode: turn it on and restart.",
+    "trust": "Settings > General > VPN & Device Management: trust your Apple ID's developer app.",
+    "open_madeira": "Open Madeira and install LocalDevVPN when it asks (Wi-Fi on).",
+    "pair": "Choose In-app pairing, then Settings > Privacy & Security > Developer Mode > Pair with Madeira and enter the code.",
+    "check": "In Madeira's Settings, JIT and Memory+ must both be green: then you are ready to play.",
+    "exclusion_remove": "If you added a Windows Security exclusion, remove it now:",
+    "exclusion_failed": "If Windows Security blocked a Madeira file, add the exclusion and try again:"
   },
   "operations": {
     "install_sidestore_title": "Installing SideStore",

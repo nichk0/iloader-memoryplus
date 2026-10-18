@@ -30,7 +30,7 @@ export const AppleID = ({
   const [tfaOpen, setTfaOpen] = useState<boolean>(false);
   const [tfaCode, setTfaCode] = useState<string>("");
   const [addAccountOpen, setAddAccountOpen] = useState<boolean>(false);
-  const [anisetteServer] = useStore<string>(
+  const [anisetteServer, setAnisetteServer] = useStore<string>(
     "newAnisetteServer",
     "new.ani.sidestore.io",
   );
@@ -38,6 +38,19 @@ export const AppleID = ({
   const [selectedSerials, setSelectedSerials] = useState<string[]>([]);
   const [chooseCertsOpen, setChooseCertsOpen] = useState<boolean>(false);
   const { err } = useError();
+
+  // MemoryPlus: the backend switched to a Windows anisette server that worked
+  useEffect(() => {
+    const unlisten = listen<string>("anisette-server-changed", (event) => {
+      setAnisetteServer(event.payload);
+      toast.info(t("apple_id.anisette_switched", { server: event.payload }), {
+        duration: 10000,
+      });
+    });
+    return () => {
+      unlisten.then((f) => f());
+    };
+  }, [setAnisetteServer, t]);
 
   useEffect(() => {
     let getLoggedInAs = async () => {

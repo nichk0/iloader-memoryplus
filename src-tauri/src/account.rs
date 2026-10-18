@@ -156,13 +156,33 @@ pub fn reset_anisette_state() -> Result<bool, AppError> {
     }
 }
 
-async fn login(
+/// MemoryPlus: Windows anisette servers tried, in order, when Apple refuses the
+/// login with -80045 or the chosen server is down. Many accounts that Apple
+/// rejects from the Mac servers sign in fine from a Windows one.
+const WINDOWS_ANISETTE_FALLBACKS: [&str; 3] = [
+    "ani2.stikstore.app",
+    "win.ani.sidestore.io",
+    "ani.jkcoxson.com",
+];
+
+fn should_try_another_server(error: &AppError) -> bool {
+    matches!(error, AppError::Anisette(_)) || error.to_string().contains("-80045")
+}
+
+fn strip_scheme(server: &str) -> &str {
+    server
+        .trim_start_matches("https://")
+        .trim_start_matches("http://")
+        .trim_end_matches('/')
+}
+
+async fn login_account(
     app: &AppHandle,
     window: Window,
     email: &str,
     password: &str,
-    anisette_server: String,
-) -> Result<Sideloader<MaxCertsCallbackBox>, AppError> {
+    anisette_server: &str,
+) -> Result<AppleAccount, AppError> {
     let tfa_closure = {
         let window_clone = window.clone();
         move |params: TwoFactorCallbackParams| {
@@ -192,10 +212,10 @@ async fn login(
     let anisette_url = if !anisette_server.starts_with("http") {
         format!("https://{}", anisette_server)
     } else {
-        anisette_server
+        anisette_server.to_string()
     };
 
-    let mut account = AppleAccount::builder(&email.to_lowercase())
+    let account = AppleAccount::builder(&email.to_lowercase())
         .anisette_provider(
             RemoteV3AnisetteProvider::default()?
                 .set_serial_number("0".to_string())
@@ -204,6 +224,44 @@ async fn login(
         )
         .login(password, Box::new(tfa_closure))
         .await?;
+    Ok(account)
+}
+
+async fn login(
+    app: &AppHandle,
+    window: Window,
+    email: &str,
+    password: &str,
+    anisette_server: String,
+) -> Result<Sideloader<MaxCertsCallbackBox>, AppError> {
+    let mut servers = vec![anisette_server.clone()];
+    servers.extend(
+        WINDOWS_ANISETTE_FALLBACKS
+            .iter()
+            .filter(|s| **s != strip_scheme(&anisette_server))
+            .map(|s| s.to_string()),
+    );
+
+    let mut attempt = 0;
+    let mut account = loop {
+        let server = &servers[attempt];
+        match login_account(app, window.clone(), email, password, server).await {
+            Ok(account) => {
+                if attempt > 0 {
+                    // Let the UI remember the server that worked
+                    let _ = window.emit("anisette-server-changed", strip_scheme(server));
+                }
+                break account;
+            }
+            Err(e) if should_try_another_server(&e) && attempt + 1 < servers.len() => {
+                tracing::warn!("Login with anisette server {server} failed ({e}), trying the next one");
+                // Provisioning data from one server does not work with another
+                let _ = reset_anisette_state();
+                attempt += 1;
+            }
+            Err(e) => return Err(e),
+        }
+    };
 
     debug!("Logged in");
 
